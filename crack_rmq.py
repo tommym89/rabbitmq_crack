@@ -1,29 +1,36 @@
+import os
 import pathlib
-import pika
 import sys
+
+import pika
 
 
 def check_auth(username, password, host, port):
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host, port, '/', pika.credentials.PlainCredentials(username, password)))
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters(host, port, '/', pika.credentials.PlainCredentials(username, password)))
     except pika.exceptions.ProbableAuthenticationError:
         return False
     return True
 
-def usage(script_name):
-    print("Usage:  {} <usernames_file> <passwords_file> <target_host> <target_port>".format(script_name))
+
+def usage():
+    print("Usage:  {} <usernames_file> <passwords_file> <target_host> <target_port>".format(
+        os.path.basename(sys.argv[0])))
     exit(1)
 
-if len(sys.argv) != 5:
-    usage(sys.argv[0])
 
-if not pathlib.Path(sys.argv[1]).exists():
-    usage(sys.argv[0])
-if not pathlib.Path(sys.argv[2]).exists():
-    usage(sys.argv[0])
+if len(sys.argv) != 5:
+    usage()
 
 usernames_file = sys.argv[1]
 passwords_file = sys.argv[2]
+
+if not pathlib.Path(usernames_file).is_file():
+    usage()
+if not pathlib.Path(passwords_file).is_file():
+    usage()
+
 host = sys.argv[3]
 port = sys.argv[4]
 
